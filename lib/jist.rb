@@ -207,7 +207,11 @@ module Jist
   # @raise [RuntimeError] if no clipboard integration could be found
   def clipboard_command(action)
     command = CLIPBOARD_COMMANDS.keys.detect do |cmd|
-      system("type #{cmd} >/dev/null 2>&1")
+      if ENV['OS'] == 'Windows_NT' || RUBY_PLATFORM =~ /djgpp|(cyg|ms|bcc)win|mingw|wince/i
+        system("#{cmd} 2> NUL")
+      else
+        system("type #{cmd} >/dev/null 2>&1")
+      end
     end
     raise "Could not find copy command, tried: #{CLIPBOARD_COMMANDS}" unless command
     action == :copy ? command : CLIPBOARD_COMMANDS[command]
